@@ -1,10 +1,8 @@
 # ******************************************************
-#     Program: stencil2d-gt4py
-#      Author: Stefano Ubbiali
-#       Email: subbiali@phys.ethz.ch
-#        Date: 04.06.2020
-# Description: GT4Py implementation of 4th-order diffusion
+#     Program: stencil2d-gt4py-a1
+# Description: Attempt 2: GT4Py based halo updates with MPI
 # ******************************************************
+
 import click
 import gt4py as gt
 from gt4py import gtscript
