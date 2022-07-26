@@ -1,4 +1,4 @@
 ## Shell commands documentation
 
 #Marc 
-srun -n 24 python stencil2d-gt4py.py --nx 128 --ny 128 --nz 64 --num_iter 1024 --plot_result True
+srun -n 16 python stencil2d-gt4py-a1.py --nx 128 --ny 128 --nz 64 --num_iter 64 --plot_result True --backend=numpy

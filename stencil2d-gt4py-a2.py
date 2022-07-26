@@ -1,10 +1,8 @@
 # ******************************************************
-#     Program: stencil2d-gt4py
-#      Author: Stefano Ubbiali
-#       Email: subbiali@phys.ethz.ch
-#        Date: 04.06.2020
-# Description: GT4Py implementation of 4th-order diffusion
+#     Program: stencil2d-gt4py-a1
+# Description: Attempt 2: GT4Py based halo updates with MPI
 # ******************************************************
+
 import click
 import gt4py as gt
 from gt4py import gtscript
@@ -12,6 +10,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
+from mpi4py import MPI
+from partitioner import Partitioner
 
 @gtscript.function
 def laplacian(in_field):
@@ -142,7 +142,7 @@ def apply_diffusion(
 )
 def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
     """Driver for apply_diffusion that sets up fields and does timings."""
-
+    
     assert 0 < nx <= 1024 * 1024, "You have to specify a reasonable value for nx"
     assert 0 < ny <= 1024 * 1024, "You have to specify a reasonable value for ny"
     assert 0 < nz <= 1024, "You have to specify a reasonable value for nz"
@@ -160,35 +160,34 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
         "cuda",
     ), "You have to specify a reasonable value for backend"
     alpha = 1.0 / 32.0
-    
-    print('okkk')
 
     # default origin
     dorigin = (num_halo, num_halo, 0)
+    
+    # initialize partitioner
+    comm = MPI.COMM_WORLD
+    p = Partitioner(comm, [nz, ny, nx], num_halo)
+        
+    # prepare global field in numpy
+    if p.rank() == 0:
+        f = np.zeros((nz, ny + 2 * num_halo, nx + 2 * num_halo), dtype = np.float64)
+        f[nz // 4:3 * nz // 4, num_halo + ny // 4:num_halo + 3 * ny // 4, num_halo + nx // 4:num_halo + 3 * nx // 4] = 1.0
+        np.save("in_field", f)
+    else:
+        f = None
+    
+    # split np fields to ranks
+    in_field = p.scatter(f)
+    out_field = np.copy(in_field)
+    
+    # allocate input and output fields in storage containers for each rank
+    in_field = gt.storage.from_array(in_field, backend, dorigin)
+    out_field = gt.storage.from_array(out_field, backend, dorigin)
 
-    # allocate input and output fields
-    in_field = gt.storage.zeros(
-        backend, dorigin, (nx + 2 * num_halo, ny + 2 * num_halo, nz), dtype=np.float64
-    )
-    out_field = gt.storage.zeros(
-        backend, dorigin, (nx + 2 * num_halo, ny + 2 * num_halo, nz), dtype=np.float64
-    )
-
-    # prepare input field
-    in_field[
-        num_halo + nx // 4 : num_halo + 3 * nx // 4,
-        num_halo + ny // 4 : num_halo + 3 * ny // 4,
-        nz // 4 : 3 * nz // 4,
-    ] = 1.0
-
-    # write input field to file
-    # swap first and last axes for compliance with F-layout
-    np.save("in_field", np.swapaxes(in_field, 0, 2))
-
-    if plot_result:
+    if plot_result and p.rank() == 0:
         # plot initial field
         plt.ioff()
-        plt.imshow(np.asarray(in_field[:, :, 0]), origin="lower")
+        plt.imshow(f[in_field.shape[0] // 2, :, :], origin="lower")
         plt.colorbar()
         plt.savefig("in_field.png")
         plt.close()
@@ -217,6 +216,8 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
     apply_diffusion(
         diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo
     )
+    
+    comm.Barrier()
 
     # time the actual work
     tic = time.time()
@@ -230,20 +231,20 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
         num_iter=num_iter,
     )
     toc = time.time()
-    print(f"Elapsed time for work = {toc - tic} s")
+    comm.Barrier()
+    if p.rank() == 0:
+        print(f"Elapsed time for work = {toc - tic} s")
+        
+    out_field = np.asarray(out_field)
+    f = p.gather(out_field)
 
-    # save output field
-    # swap first and last axes for compliance with F-layout
-    np.save("out_field", np.swapaxes(out_field, 0, 2))
-
-    if plot_result:
-        # plot the output field
-        plt.ioff()
-        plt.imshow(np.asarray(out_field[:, :, 0]), origin="lower")
-        plt.colorbar()
-        plt.savefig("out_field.png")
-        plt.close()
-
+    if p.rank() == 0:
+        np.save("out_field", f)
+        if plot_result:
+            plt.imshow(f[out_field.shape[0] // 2, :, :], origin="lower")
+            plt.colorbar()
+            plt.savefig("out_field.png")
+            plt.close()
 
 if __name__ == "__main__":
     main()
