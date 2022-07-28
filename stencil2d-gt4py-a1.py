@@ -1,6 +1,9 @@
 # ******************************************************
-#     Program: stencil2d-gt4py-a1
-# Description: Attempt 1: Numpy based halo updates with MPI
+#     Program: stencil2d-gt4py
+#      Author: Stefano Ubbiali
+#       Email: subbiali@phys.ethz.ch
+#        Date: 04.06.2020
+# Description: GT4Py implementation of 4th-order diffusion
 # ******************************************************
 
 import warnings
@@ -40,47 +43,46 @@ def diffusion_defs(
         lap1 = laplacian(in_field)
         lap2 = laplacian(lap1)
         out_field = in_field - alpha * lap2
-
-
+    
 def update_halo(p, field, num_halo):
     
     # allocate recv buffers and pre-post the receives (top and bottom edge, without corners)
-    b_rcvbuf = np.empty_like(np.asarray(field[0:num_halo, num_halo:-num_halo, :]))
-    t_rcvbuf = np.empty_like(np.asarray(field[-num_halo:, num_halo:-num_halo, :]))
+    b_rcvbuf = np.empty_like(np.asarray(field[num_halo:-num_halo, 0:num_halo, :]))
+    t_rcvbuf = np.empty_like(np.asarray(field[num_halo:-num_halo, -num_halo:, :]))
     reqs_tb = []
     reqs_tb.append(p.comm().Irecv(b_rcvbuf, source = p.bottom()))
     reqs_tb.append(p.comm().Irecv(t_rcvbuf, source = p.top()))
 
     # allocate recv buffers and pre-post the receives (left and right edge, including corners)
-    l_rcvbuf = np.empty_like(np.asarray(field[:, 0:num_halo, :]))
-    r_rcvbuf = np.empty_like(np.asarray(field[:, -num_halo:, :]))
+    l_rcvbuf = np.empty_like(np.asarray(field[0:num_halo, :, :]))
+    r_rcvbuf = np.empty_like(np.asarray(field[-num_halo:, :, :]))
     reqs_lr = []
     reqs_lr.append(p.comm().Irecv(l_rcvbuf, source = p.left()))
     reqs_lr.append(p.comm().Irecv(r_rcvbuf, source = p.right()))
     
     # pack and send (top and bottom edge, without corners)
-    b_sndbuf = np.asarray(field[-2 * num_halo:-num_halo, num_halo:-num_halo, :]).copy()
+    b_sndbuf = np.asarray(field[num_halo:-num_halo, -2 * num_halo:-num_halo, :]).copy()
     reqs_tb.append(p.comm().Isend(b_sndbuf, dest = p.top()))
-    t_sndbuf = np.asarray(field[num_halo:2 * num_halo, num_halo:-num_halo, :]).copy()
+    t_sndbuf = np.asarray(field[num_halo:-num_halo, num_halo:2 * num_halo, :]).copy()
     reqs_tb.append(p.comm().Isend(t_sndbuf, dest = p.bottom()))
     
     # wait and unpack
     for req in reqs_tb:
         req.wait()
-    field[0:num_halo, num_halo:-num_halo, :] = b_rcvbuf
-    field[-num_halo:, num_halo:-num_halo, :] = t_rcvbuf
+    field[num_halo:-num_halo, 0:num_halo, :] = b_rcvbuf
+    field[num_halo:-num_halo, -num_halo:, :] = t_rcvbuf
     
     # pack and send (left and right edge, including corners)
-    l_sndbuf = np.asarray(field[:, -2 * num_halo:-num_halo, :]).copy()
+    l_sndbuf = np.asarray(field[-2 * num_halo:-num_halo, :, :]).copy()
     reqs_lr.append(p.comm().Isend(l_sndbuf, dest = p.right()))
-    r_sndbuf = np.asarray(field[:, num_halo:2 * num_halo, :]).copy()
+    r_sndbuf = np.asarray(field[num_halo:2 * num_halo, :, :]).copy()
     reqs_lr.append(p.comm().Isend(r_sndbuf, dest = p.left()))
 
     # wait and unpack
     for req in reqs_lr:
         req.wait()
-    field[:, 0:num_halo, :] = l_rcvbuf
-    field[:, -num_halo:, :] = r_rcvbuf
+    field[0:num_halo, :, :] = l_rcvbuf
+    field[-num_halo:, :, :] = r_rcvbuf
 
 def apply_diffusion(
     p, diffusion_stencil, in_field, out_field, alpha, num_halo, num_iter=1
@@ -179,21 +181,23 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
     
     # split np fields to ranks
     in_field = p.scatter(f)
-    in_field = np.swapaxes(in_field, 0, 2)
+    # change axis order to (nx,ny,nz) for gt4py
+    in_field = np.transpose(in_field, (2,1,0))
     out_field = np.copy(in_field)
     
     # allocate input and output fields in storage containers for each rank
     in_field = gt.storage.from_array(in_field, backend, dorigin)
     out_field = gt.storage.from_array(out_field, backend, dorigin)
-
+    
     if plot_result and p.rank() == 0:
         # plot initial field
         plt.ioff()
-        plt.imshow(f[in_field.shape[0] // 2, :, :], origin="lower")
+        plt.imshow(f[f.shape[0] // 2, :, :], origin="lower")
         plt.colorbar()
         plt.savefig("in_field.png")
         plt.close()
-
+    
+    
     # compile diffusion stencil
     kwargs = {"verbose": True} if backend in ("gtx86", "gtmc", "gtcuda") else {}
     diffusion_stencil = gtscript.stencil(
@@ -203,7 +207,7 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
         rebuild=False,
         **kwargs,
     )
-
+    
     # warmup caches
     apply_diffusion(p, diffusion_stencil, in_field, out_field, alpha, num_halo)
     
@@ -224,17 +228,19 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
     comm.Barrier()
     if p.rank() == 0:
         print(f"Elapsed time for work = {toc - tic} s")
-        
-    out_field = np.swapaxes(np.asarray(out_field), 0, 2)
+    
+    # change axis order to (nz,ny,nx) for partitioner class
+    out_field = np.transpose(out_field, (2,1,0))
     f = p.gather(out_field)
 
     if p.rank() == 0:
         np.save("out_field", f)
         if plot_result:
-            plt.imshow(f[out_field.shape[0] // 2, :, :], origin="lower")
+            plt.imshow(np.asarray(f)[f.shape[0] // 2, :, :], origin="lower")
             plt.colorbar()
             plt.savefig("out_field.png")
             plt.close()
-
+    
 if __name__ == "__main__":
     main()
+
