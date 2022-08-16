@@ -136,10 +136,6 @@ def update_halo_mpi(p, copy_stencil, field, num_halo, backend):
     )
     
     
-    
-
-
-
 
 def apply_diffusion(
     p, backend, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo, num_iter=1
