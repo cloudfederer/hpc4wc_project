@@ -50,18 +50,18 @@ def copy_defs(src: gtscript.Field["dtype"], dst: gtscript.Field["dtype"]):
     with computation(PARALLEL), interval(...):
         dst = src
     
-def update_halo_mpi(p, copy_stencil, field, num_halo):
+def update_halo_mpi(p, copy_stencil, field, num_halo, backend):
     
     # allocate recv buffers and pre-post the receives (top and bottom edge, without corners)
-    b_rcvbuf = np.empty_like(np.asarray(field[num_halo:-num_halo, 0:num_halo, :]))
-    t_rcvbuf = np.empty_like(np.asarray(field[num_halo:-num_halo, -num_halo:, :]))
+    b_rcvbuf = np.ascontiguousarray(np.empty_like(np.asarray(field[num_halo:-num_halo, 0:num_halo, :])))
+    t_rcvbuf = np.ascontiguousarray(np.empty_like(np.asarray(field[num_halo:-num_halo, -num_halo:, :])))
     reqs_tb = []
     reqs_tb.append(p.comm().Irecv(b_rcvbuf, source = p.bottom()))
     reqs_tb.append(p.comm().Irecv(t_rcvbuf, source = p.top()))
 
     # allocate recv buffers and pre-post the receives (left and right edge, including corners)
-    l_rcvbuf = np.empty_like(np.asarray(field[0:num_halo, :, :]))
-    r_rcvbuf = np.empty_like(np.asarray(field[-num_halo:, :, :]))
+    l_rcvbuf = np.ascontiguousarray(np.empty_like(np.asarray(field[0:num_halo, :, :])))
+    r_rcvbuf = np.ascontiguousarray(np.empty_like(np.asarray(field[-num_halo:, :, :])))
     reqs_lr = []
     reqs_lr.append(p.comm().Irecv(l_rcvbuf, source = p.left()))
     reqs_lr.append(p.comm().Irecv(r_rcvbuf, source = p.right()))
@@ -85,7 +85,7 @@ def update_halo_mpi(p, copy_stencil, field, num_halo):
     ny_p = field.shape[1]-2*num_halo
     nz_p = field.shape[2]
     
-    b_rcvbuf_storage = gt.storage.from_array(b_rcvbuf, backend = "numpy", default_origin = (0,0,0))
+    b_rcvbuf_storage = gt.storage.from_array(b_rcvbuf, backend = backend, default_origin = (0,0,0))
     copy_stencil(
         src=b_rcvbuf_storage,
         dst=field,
@@ -93,7 +93,7 @@ def update_halo_mpi(p, copy_stencil, field, num_halo):
         domain=(nx_p, num_halo, nz_p),
     )
     
-    t_rcvbuf_storage = gt.storage.from_array(t_rcvbuf, backend = "numpy", default_origin = (0,0,0))
+    t_rcvbuf_storage = gt.storage.from_array(t_rcvbuf, backend = backend, default_origin = (0,0,0))
     copy_stencil(
         src=t_rcvbuf_storage,
         dst=field,
@@ -119,7 +119,7 @@ def update_halo_mpi(p, copy_stencil, field, num_halo):
     
     
     
-    l_rcvbuf_storage = gt.storage.from_array(l_rcvbuf, backend = "numpy", default_origin = (0,0,0))
+    l_rcvbuf_storage = gt.storage.from_array(l_rcvbuf, backend = backend, default_origin = (0,0,0))
     copy_stencil(
         src=l_rcvbuf_storage,
         dst=field,
@@ -127,7 +127,7 @@ def update_halo_mpi(p, copy_stencil, field, num_halo):
         domain=(num_halo, ny_p + 2*num_halo, nz_p),
     )
     
-    r_rcvbuf_storage = gt.storage.from_array(r_rcvbuf, backend = "numpy", default_origin = (0,0,0))
+    r_rcvbuf_storage = gt.storage.from_array(r_rcvbuf, backend = backend, default_origin = (0,0,0))
     copy_stencil(
         src=r_rcvbuf_storage,
         dst=field,
@@ -142,7 +142,7 @@ def update_halo_mpi(p, copy_stencil, field, num_halo):
 
 
 def apply_diffusion(
-    p, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo, num_iter=1
+    p, backend, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo, num_iter=1
 ):
     # origin and extent of the computational domain
     origin = (num_halo, num_halo, 0)
@@ -154,7 +154,7 @@ def apply_diffusion(
 
     for n in range(num_iter):
         # halo update
-        update_halo_mpi(p, copy_stencil, in_field, num_halo)
+        update_halo_mpi(p, copy_stencil, in_field, num_halo, backend)
 
         # run the stencil
         diffusion_stencil(
@@ -170,7 +170,7 @@ def apply_diffusion(
             in_field, out_field = out_field, in_field
         else:
             # halo update
-            update_halo_mpi(p, copy_stencil, in_field, num_halo)
+            update_halo_mpi(p, copy_stencil, in_field, num_halo, backend)
 
 
 @click.command()
@@ -258,6 +258,7 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
         
     # compile diffusion stencil
     kwargs = {"verbose": True} if backend in ("gtx86", "gtmc", "gtcuda") else {}
+   
     diffusion_stencil = gtscript.stencil(
         definition=diffusion_defs,
         backend=backend,
@@ -274,11 +275,31 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
         rebuild=False,
         **kwargs,
     )
+    '''
+    comm.Barrier()
+    if p.rank() != 0:
+        diffusion_stencil = gtscript.stencil(
+            definition=diffusion_defs,
+            backend=backend,
+            externals={"laplacian": laplacian},
+            rebuild=False,
+            **kwargs,
+        )
 
+        # compile copy stencil
+        copy_stencil = gtscript.stencil(
+            definition=copy_defs,
+            backend=backend,
+            dtypes={"dtype": np.float64},
+            rebuild=False,
+            **kwargs,
+        )
+    '''
     #comm.Barrier()
     
     # warmup caches
-    apply_diffusion(p, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo)
+    #p, backend, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo, num_iter=1
+    apply_diffusion(p, backend, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo)
     
     comm.Barrier()
     
@@ -286,6 +307,7 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
     tic = time.time()
     apply_diffusion(
         p,
+        backend,
         diffusion_stencil,
         copy_stencil,
         in_field,
