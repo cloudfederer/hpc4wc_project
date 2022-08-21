@@ -1,0 +1,177 @@
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 2.6149163246154785 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 1.3297090530395508 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.7353465557098389 s
+Elapsed time for work = 0.4376382827758789 s
+Elapsed time for work = 0.2268199920654297 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 9.819753408432007 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 5.308556079864502 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 3.162734270095825 s
+srun: Job 40749026 step creation temporarily disabled, retrying (Requested nodes are busy)
+srun: Step created for job 40749026
+Elapsed time for work = 1.3347060680389404 s
+Elapsed time for work = 0.7648599147796631 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 57.0840060710907 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 22.719197034835815 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 9.805283069610596 s
+Elapsed time for work = 5.35004997253418 s
+Elapsed time for work = 2.8578968048095703 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 229.1965687274933 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 115.36952185630798 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 57.120941400527954 s
+Elapsed time for work = 22.997626781463623 s
+Elapsed time for work = 12.263200998306274 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 2.602982521057129 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 3.258958101272583 s
+Elapsed time for work = 2.900538921356201 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.12834572792053223 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.10907125473022461 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.09085655212402344 s
+Elapsed time for work = 0.08984994888305664 s
+Elapsed time for work = 0.7692360877990723 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.2008042335510254 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.14679193496704102 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.13217687606811523 s
+Elapsed time for work = 0.13092875480651855 s
+Elapsed time for work = 0.7615966796875 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.5404086112976074 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.3252682685852051 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.21999621391296387 s
+Elapsed time for work = 0.19720244407653809 s
+Elapsed time for work = 0.7911417484283447 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 1.5586037635803223 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.9913568496704102 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.578211784362793 s
+Elapsed time for work = 0.34967613220214844 s
+Elapsed time for work = 0.8761603832244873 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.11436343193054199 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.1346888542175293 s
+Elapsed time for work = 0.7245490550994873 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.08862090110778809 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.07738399505615234 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.07311654090881348 s
+Elapsed time for work = 0.07632637023925781 s
+Elapsed time for work = 0.7840638160705566 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.16228723526000977 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.1345510482788086 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.09963226318359375 s
+Elapsed time for work = 0.10034036636352539 s
+Elapsed time for work = 0.7805788516998291 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.5093719959259033 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.2962381839752197 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.1771395206451416 s
+Elapsed time for work = 0.15513944625854492 s
+Elapsed time for work = 0.7572059631347656 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 1.696556806564331 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.9820525646209717 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.5242049694061279 s
+Elapsed time for work = 0.33467864990234375 s
+Elapsed time for work = 0.9199249744415283 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.0839087963104248 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.10114693641662598 s
+Elapsed time for work = 0.7234485149383545 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.19768023490905762 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.16058087348937988 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.1478254795074463 s
+Elapsed time for work = 0.13760995864868164 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.3949451446533203 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.26636433601379395 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.21753215789794922 s
+Elapsed time for work = 0.17661213874816895 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 1.0662102699279785 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.6164543628692627 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.41483163833618164 s
+Elapsed time for work = 0.31123900413513184 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 3.6074438095092773 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 1.916450023651123 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 1.1068856716156006 s
+Elapsed time for work = 0.6760513782501221 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.20073175430297852 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.22069931030273438 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 2.5541558265686035 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 1.348081350326538 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.7338268756866455 s
+Elapsed time for work = 0.450575590133667 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 0.3958737850189209 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.26993656158447266 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.22608304023742676 s
+Elapsed time for work = 0.18386554718017578 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 1.080052375793457 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 0.6141626834869385 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.41442012786865234 s
+Elapsed time for work = 0.2861342430114746 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 3.591974973678589 s
+srun: Warning: can't run 2 processes on 8 nodes, setting nnodes to 2
+Elapsed time for work = 1.9121270179748535 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 1.102203607559204 s
+Elapsed time for work = 0.6503300666809082 s
+srun: Warning: can't run 1 processes on 8 nodes, setting nnodes to 1
+Elapsed time for work = 2.614356756210327 s
+srun: Warning: can't run 4 processes on 8 nodes, setting nnodes to 4
+Elapsed time for work = 0.2147536277770996 s

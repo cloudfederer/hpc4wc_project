@@ -1,0 +1,111 @@
+import matplotlib.pyplot as plt 
+from pandas.core.frame import DataFrame
+import numpy as np 
+
+performance = []
+scaling = open('scaling.txt', 'r')
+
+for row in scaling: 
+    row = row.split(' ')
+    if row[0] == "Elapsed":
+        performance.append(row[5])
+
+performance = DataFrame(performance)
+
+print(type(performance))
+strong_cores_5 = np.array([1.0, 2.0, 4.0, 8.0, 16.0]).reshape(-1)
+strong_cores_4 = np.array([1.0, 2.0, 4.0, 8.0]).reshape(-1)
+weak_cores_3 = np.array([1.0, 4.0, 16.0]).reshape(-1)
+weak_cores_2 = np.array([1.0, 4.0]).reshape(-1)
+
+strong_64_numpy = performance.iloc[0:5].values.reshape(-1).astype(np.float64)
+strong_128_numpy = performance.iloc[5:10].values.reshape(-1).astype(np.float64)
+strong_256_numpy = performance.iloc[10:15].values.reshape(-1).astype(np.float64)
+strong_512_numpy = performance.iloc[15:20].values.reshape(-1).astype(np.float64)
+weak_numpy = performance.iloc[20:23].values.reshape(-1).astype(np.float64)
+strong_64_ifirst = performance.iloc[23:28].values.reshape(-1).astype(np.float64)
+strong_128_ifirst = performance.iloc[28:33].values.reshape(-1).astype(np.float64)
+strong_256_ifirst = performance.iloc[33:38].values.reshape(-1).astype(np.float64)
+strong_512_ifirst = performance.iloc[38:43].values.reshape(-1).astype(np.float64)
+weak_ifirst = performance.iloc[43:46].values.reshape(-1).astype(np.float64)
+strong_64_kfirst = performance.iloc[46:51].values.reshape(-1).astype(np.float64)
+strong_128_kfirst = performance.iloc[51:56].values.reshape(-1).astype(np.float64)
+strong_256_kfirst = performance.iloc[56:61].values.reshape(-1).astype(np.float64)
+strong_512_kfirst = performance.iloc[61:66].values.reshape(-1).astype(np.float64)
+weak_kfirst = performance.iloc[66:69].values.reshape(-1).astype(np.float64)
+strong_64_gpu = performance.iloc[69:73].values.reshape(-1).astype(np.float64)
+strong_128_gpu = performance.iloc[73:77].values.reshape(-1).astype(np.float64)
+strong_256_gpu = performance.iloc[77:81].values.reshape(-1).astype(np.float64)
+strong_512_gpu = performance.iloc[81:85].values.reshape(-1).astype(np.float64)
+weak_gpu = performance.iloc[85:87].values.reshape(-1).astype(np.float64)
+strong_64_cuda = performance.iloc[87:91].values.reshape(-1).astype(np.float64)
+strong_128_cuda = performance.iloc[91:95].values.reshape(-1).astype(np.float64)
+strong_256_cuda = performance.iloc[95:99].values.reshape(-1).astype(np.float64)
+strong_512_cuda = performance.iloc[99:103].values.reshape(-1).astype(np.float64)
+weak_cuda = performance.iloc[103:105].values.reshape(-1).astype(np.float64)
+
+print(weak_cuda)
+
+
+#plt.title('Strong scaling (64*64)')
+plt.figure()
+plt.plot(strong_cores_5, strong_64_numpy, label="numpy",color = "green",marker="o", markersize = 3) 
+plt.plot(strong_cores_5, strong_64_ifirst, label="gt:cpu_ifirst", color = "red",marker="o", markersize = 3) 
+plt.plot(strong_cores_5, strong_64_kfirst, label="gt:cpu_kfirst", color = "blue",marker="o", markersize = 3)
+plt.plot(strong_cores_4, strong_64_gpu, label="gt:gpu",color = "orange", marker="o", markersize = 3)
+plt.plot(strong_cores_4, strong_64_cuda, label="cuda",color = "yellow", marker="o", markersize = 3)
+plt.xlabel('Cores')
+plt.ylabel('Run time (s)')
+plt.legend()
+plt.savefig('strong_scaling_64.png')
+
+plt.figure()
+plt.plot(strong_cores_5, strong_128_numpy, label="numpy",color = "green",marker="o", markersize = 3) 
+plt.plot(strong_cores_5, strong_128_ifirst, label="gt:cpu_ifirst", color = "red",marker="o", markersize = 3) 
+plt.plot(strong_cores_5, strong_128_kfirst, label="gt:cpu_kfirst", color = "blue",marker="o", markersize = 3)
+plt.plot(strong_cores_4, strong_128_gpu, label="gt:gpu",color = "orange", marker="o", markersize = 3)
+plt.plot(strong_cores_4, strong_128_cuda, label="cuda",color = "yellow", marker="o", markersize = 3)
+plt.xlabel('Cores')
+plt.ylabel('Run time (s)')
+plt.legend()
+plt.savefig('strong_scaling_128.png')
+
+plt.figure()
+plt.plot(strong_cores_5, strong_256_numpy, label="numpy",color = "green",marker="o", markersize = 3) 
+plt.plot(strong_cores_5, strong_256_ifirst, label="gt:cpu_ifirst", color = "red",marker="o", markersize = 3) 
+plt.plot(strong_cores_5, strong_256_kfirst, label="gt:cpu_kfirst", color = "blue",marker="o", markersize = 3)
+plt.plot(strong_cores_4, strong_256_gpu, label="gt:gpu",color = "orange", marker="o", markersize = 3)
+plt.plot(strong_cores_4, strong_256_cuda, label="cuda",color = "yellow", marker="o", markersize = 3)
+plt.xlabel('Cores')
+plt.ylabel('Run time (s)')
+plt.legend()
+plt.savefig('strong_scaling_256.png')
+
+plt.figure()
+plt.plot(strong_cores_5, strong_512_numpy, label="numpy",color = "green",marker="o", markersize = 3) 
+plt.plot(strong_cores_5, strong_512_ifirst, label="gt:cpu_ifirst", color = "red",marker="o", markersize = 3) 
+plt.plot(strong_cores_5, strong_512_kfirst, label="gt:cpu_kfirst", color = "blue",marker="o", markersize = 3)
+plt.plot(strong_cores_4, strong_512_gpu, label="gt:gpu",color = "orange", marker="o", markersize = 3)
+plt.plot(strong_cores_4, strong_512_cuda, label="cuda",color = "yellow", marker="o", markersize = 3)
+plt.xlabel('Cores')
+plt.ylabel('Run time (s)')
+plt.legend()
+plt.savefig('strong_scaling_512.png')
+
+plt.figure()
+plt.plot(weak_cores_3, weak_numpy, label="numpy",color = "green",marker="o", markersize = 3) 
+plt.plot(weak_cores_3, weak_ifirst, label="gt:cpu_ifirst", color = "red",marker="o", markersize = 3) 
+plt.plot(weak_cores_3, weak_kfirst, label="gt:cpu_kfirst", color = "blue",marker="o", markersize = 3)
+plt.plot(weak_cores_2, weak_gpu, label="gt:gpu",color = "orange", marker="o", markersize = 3)
+plt.plot(weak_cores_2, weak_cuda, label="cuda",color = "yellow", marker="o", markersize = 3)
+plt.xlabel('Cores')
+plt.ylabel('Run time (s)')
+plt.legend()
+plt.savefig('weak_scaling.png')
+
+
+#print(strong_64_ifirst)
+#print(strong_128_ifirst)
+#print(strong_256_ifirst)
+#print(strong_512_ifirst)
+
