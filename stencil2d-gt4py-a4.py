@@ -1,9 +1,9 @@
 # ******************************************************
-#     Program: stencil2d-gt4py
-#      Author: Stefano Ubbiali
-#       Email: subbiali@phys.ethz.ch
-#        Date: 04.06.2020
-# Description: GT4Py implementation of 4th-order diffusion
+#     Program: stencil2d-gt4py-a4.py
+#     Authors: Ruben Strässle, Yilu Chen, Marc Federer
+#     (based on stencil2d-gt4py-v3.py by Stefano Ubbiali)
+#     Description: Second version of MPI standard halo updates 
+#       using a stencil object to copy halo points. 
 # ******************************************************
 
 import warnings
@@ -76,15 +76,12 @@ def update_halo_mpi(p, copy_stencil, field, num_halo, backend):
     for req in reqs_tb:
         req.wait()
     
-    #gt_storage.from_array(in_data, backend, default_origin=origin, dtype=dtype)
-    #b_rcvbuf_storage = gt.storage.from_array(b_rcvbuf, backend = "numpy", default_origin = (num_halo, num_halo, 0))
-    #t_rcvbuf_storage = gt.storage.from_array(t_rcvbuf, backend = "numpy", default_origin = (num_halo, num_halo,0))
-    #copy_stencil(src=b_rcvbuf_storage, dst = field[num_halo:-num_halo, 0:num_halo, :])
-    #copy_stencil(src=t_rcvbuf_storage, dst = field[num_halo:-num_halo, -num_halo:, :])
+    # field dims without halo points
     nx_p = field.shape[0]-2*num_halo
     ny_p = field.shape[1]-2*num_halo
     nz_p = field.shape[2]
     
+    # copy bottom halo points
     b_rcvbuf_storage = gt.storage.from_array(b_rcvbuf, backend = backend, default_origin = (0,0,0))
     copy_stencil(
         src=b_rcvbuf_storage,
@@ -92,7 +89,8 @@ def update_halo_mpi(p, copy_stencil, field, num_halo, backend):
         origin={"src": (0, 0, 0), "dst": (num_halo, 0, 0)},
         domain=(nx_p, num_halo, nz_p),
     )
-    
+
+    # copy top halo points
     t_rcvbuf_storage = gt.storage.from_array(t_rcvbuf, backend = backend, default_origin = (0,0,0))
     copy_stencil(
         src=t_rcvbuf_storage,
@@ -100,10 +98,6 @@ def update_halo_mpi(p, copy_stencil, field, num_halo, backend):
         origin={"src": (0, 0, 0), "dst": (num_halo, ny_p+num_halo, 0)},
         domain=(nx_p, num_halo, nz_p),
     )
-    
-    
-    #field[num_halo:-num_halo, 0:num_halo, :] = b_rcvbuf
-    #field[num_halo:-num_halo, -num_halo:, :] = t_rcvbuf
     
     # pack and send (left and right edge, including corners)
     l_sndbuf = np.asarray(field[-2 * num_halo:-num_halo, :, :]).copy()
@@ -114,11 +108,8 @@ def update_halo_mpi(p, copy_stencil, field, num_halo, backend):
     # wait and unpack
     for req in reqs_lr:
         req.wait()
-    #field[0:num_halo, :, :] = l_rcvbuf
-    #field[-num_halo:, :, :] = r_rcvbuf
-    
-    
-    
+
+    # copy left halo points
     l_rcvbuf_storage = gt.storage.from_array(l_rcvbuf, backend = backend, default_origin = (0,0,0))
     copy_stencil(
         src=l_rcvbuf_storage,
@@ -127,6 +118,7 @@ def update_halo_mpi(p, copy_stencil, field, num_halo, backend):
         domain=(num_halo, ny_p + 2*num_halo, nz_p),
     )
     
+    # copy right halo points
     r_rcvbuf_storage = gt.storage.from_array(r_rcvbuf, backend = backend, default_origin = (0,0,0))
     copy_stencil(
         src=r_rcvbuf_storage,
@@ -135,8 +127,6 @@ def update_halo_mpi(p, copy_stencil, field, num_halo, backend):
         domain=(num_halo, ny_p+2*num_halo, nz_p),
     )
     
-    
-
 def apply_diffusion(
     p, backend, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo, num_iter=1
 ):
@@ -249,9 +239,7 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
         plt.colorbar()
         plt.savefig("in_field.png")
         plt.close()
-    
-    #if p.rank()==0:
-        
+            
     # compile diffusion stencil
     kwargs = {"verbose": True} if backend in ("gtx86", "gtmc", "gtcuda") else {}
    
@@ -271,30 +259,8 @@ def main(nx, ny, nz, num_iter, num_halo=2, backend="numpy", plot_result=False):
         rebuild=False,
         **kwargs,
     )
-    '''
-    comm.Barrier()
-    if p.rank() != 0:
-        diffusion_stencil = gtscript.stencil(
-            definition=diffusion_defs,
-            backend=backend,
-            externals={"laplacian": laplacian},
-            rebuild=False,
-            **kwargs,
-        )
-
-        # compile copy stencil
-        copy_stencil = gtscript.stencil(
-            definition=copy_defs,
-            backend=backend,
-            dtypes={"dtype": np.float64},
-            rebuild=False,
-            **kwargs,
-        )
-    '''
-    #comm.Barrier()
     
     # warmup caches
-    #p, backend, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo, num_iter=1
     apply_diffusion(p, backend, diffusion_stencil, copy_stencil, in_field, out_field, alpha, num_halo)
     
     comm.Barrier()

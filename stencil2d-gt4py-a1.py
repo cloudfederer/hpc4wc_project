@@ -1,9 +1,9 @@
 # ******************************************************
-#     Program: stencil2d-gt4py
-#      Author: Stefano Ubbiali
-#       Email: subbiali@phys.ethz.ch
-#        Date: 04.06.2020
-# Description: GT4Py implementation of 4th-order diffusion
+#     Program: stencil2d-gt4py-a1.py
+#     Authors: Ruben Strässle, Yilu Chen, Marc Federer
+#     (based on stencil2d-gt4py-v0.py by Stefano Ubbiali)
+#     Description: First version of MPI standard halo updates 
+#       using numpy syntax on GT4PY storage containers.
 # ******************************************************
 
 import warnings
@@ -69,6 +69,8 @@ def update_halo(p, field, num_halo):
     # wait and unpack
     for req in reqs_tb:
         req.wait()
+
+    # copy halo points bottom and top
     field[num_halo:-num_halo, 0:num_halo, :] = b_rcvbuf
     field[num_halo:-num_halo, -num_halo:, :] = t_rcvbuf
     
@@ -81,6 +83,8 @@ def update_halo(p, field, num_halo):
     # wait and unpack
     for req in reqs_lr:
         req.wait()
+
+    # copy halo points left and right
     field[0:num_halo, :, :] = l_rcvbuf
     field[-num_halo:, :, :] = r_rcvbuf
 
